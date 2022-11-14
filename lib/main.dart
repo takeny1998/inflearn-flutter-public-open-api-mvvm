@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+import 'model/store.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,26 +41,68 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final List<Store> stores = [];
+  var isLoading = true;
 
   Future fetch() async {
-    var url = 'https://gist.githubusercontent.com/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json';
+    setState(() {
+      isLoading = true;
+    });
+
+    var url =
+        'https://gist.githubusercontent.com/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json';
 
     var response = await http.get(url);
 
-    print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}');
+    final jsonResult = jsonDecode(utf8.decode(response.bodyBytes));
+
+    final jsonStores = jsonResult['stores'];
+
+    setState(() {
+      stores.clear();
+      jsonStores.forEach((e) {
+        stores.add(Store.fromJson(e));
+      });
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetch();
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      appBar: AppBar(title: const Text('Title')),
-      body: Center(
-        child: RaisedButton(
-          onPressed: fetch,
-          child: const Text('테스트'),
-        ),
+      appBar: AppBar(
+        title: Text('마스크 재고 있는 곳 : ${stores.length}곳'),
+        actions: [
+          IconButton(onPressed: fetch, icon: const Icon(Icons.refresh))
+        ],
+      ),
+      body: isLoading
+          ? loadingWidget()
+          : Center(
+              child: ListView(
+              children: stores.map((e) {
+                return ListTile(
+                  title: Text(e.name),
+                  subtitle: Text(e.addr),
+                  trailing: Text(e.remainStat ?? '매진'),
+                );
+              }).toList(),
+            )),
+    );
+  }
+
+  Widget loadingWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [Text('정보를 가져오는 중'), CircularProgressIndicator()],
       ),
     );
   }
