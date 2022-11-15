@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:public_open_api_mvvm/ui/page/main_page.dart';
+import 'package:public_open_api_mvvm/view/page/main_page.dart';
 import 'package:public_open_api_mvvm/viewmodel/store_model.dart';
 
 

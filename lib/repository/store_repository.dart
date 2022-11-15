@@ -18,6 +18,11 @@ class StoreRepository {
       stores.add(Store.fromJson(e));
     });
 
-    return stores;
+    return stores
+        .where((element) =>
+            element.remainStat == 'plenty' ||
+            element.remainStat == 'some' ||
+            element.remainStat == 'few')
+        .toList();
   }
 }
