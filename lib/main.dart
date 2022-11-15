@@ -1,11 +1,15 @@
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:public_open_api_mvvm/repository/store_repository.dart';
+import 'package:public_open_api_mvvm/viewmodel/store_model.dart';
 
 import 'model/store.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ChangeNotifierProvider.value(
+    value: StoreModel(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -41,10 +45,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   var isLoading = false;
-  var stores = [];
-
-  final storeRepository = StoreRepository();
-
 
   @override
   void initState() {
@@ -53,32 +53,26 @@ class _MyHomePageState extends State<MyHomePage> {
     // setState(() {
     //   isLoading = true;
     // });
-    refresh();
-  }
-
-  void refresh() {
-    storeRepository.fetch().then((value) {
-      setState(() {
-        stores = value;
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final storeModel = Provider.of<StoreModel>(context);
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        title: Text('마스크 재고 있는 곳 : ${stores.length}곳'),
+        title: Text('마스크 재고 있는 곳 : '
+            '${storeModel.stores.where((element) => element.remainStat == 'plenty' || element.remainStat == 'some' || element.remainStat == 'few').length}곳'),
         actions: [
-          IconButton(onPressed: refresh, icon: const Icon(Icons.refresh))
+          IconButton(
+              onPressed: storeModel.fetch, icon: const Icon(Icons.refresh))
         ],
       ),
       body: isLoading
           ? loadingWidget()
           : Center(
               child: ListView(
-              children: stores
+              children: storeModel.stores
                   .where((element) =>
                       element.remainStat == 'plenty' ||
                       element.remainStat == 'some' ||

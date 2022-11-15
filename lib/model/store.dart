@@ -33,16 +33,16 @@ class Store {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['code'] = this.code;
-    data['name'] = this.name;
-    data['addr'] = this.addr;
-    data['type'] = this.type;
-    data['lat'] = this.lat;
-    data['lng'] = this.lng;
-    data['stock_at'] = this.stockAt;
-    data['remain_stat'] = this.remainStat;
-    data['created_at'] = this.createdAt;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['code'] = code;
+    data['name'] = name;
+    data['addr'] = addr;
+    data['type'] = type;
+    data['lat'] = lat;
+    data['lng'] = lng;
+    data['stock_at'] = stockAt;
+    data['remain_stat'] = remainStat;
+    data['created_at'] = createdAt;
     return data;
   }
 }
