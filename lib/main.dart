@@ -1,7 +1,6 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:public_open_api_mvvm/repository/store_repository.dart';
 
 import 'model/store.dart';
 
@@ -41,36 +40,28 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Store> stores = [];
-  var isLoading = true;
+  var isLoading = false;
+  var stores = [];
 
-  Future fetch() async {
-    setState(() {
-      isLoading = true;
-    });
+  final storeRepository = StoreRepository();
 
-    var url =
-        'https://gist.githubusercontent.com/junsuk5/bb7485d5f70974deee920b8f0cd1e2f0/raw/063f64d9b343120c2cb01a6555cf9b38761b1d94/sample.json';
-
-    var response = await http.get(url);
-
-    final jsonResult = jsonDecode(utf8.decode(response.bodyBytes));
-
-    final jsonStores = jsonResult['stores'];
-
-    setState(() {
-      stores.clear();
-      jsonStores.forEach((e) {
-        stores.add(Store.fromJson(e));
-      });
-      isLoading = false;
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    fetch();
+
+    // setState(() {
+    //   isLoading = true;
+    // });
+    refresh();
+  }
+
+  void refresh() {
+    storeRepository.fetch().then((value) {
+      setState(() {
+        stores = value;
+      });
+    });
   }
 
   @override
@@ -80,14 +71,19 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text('마스크 재고 있는 곳 : ${stores.length}곳'),
         actions: [
-          IconButton(onPressed: fetch, icon: const Icon(Icons.refresh))
+          IconButton(onPressed: refresh, icon: const Icon(Icons.refresh))
         ],
       ),
       body: isLoading
           ? loadingWidget()
           : Center(
               child: ListView(
-              children: stores.map((e) {
+              children: stores
+                  .where((element) =>
+                      element.remainStat == 'plenty' ||
+                      element.remainStat == 'some' ||
+                      element.remainStat == 'few')
+                  .map((e) {
                 return ListTile(
                   title: Text(e.name),
                   subtitle: Text(e.addr),
@@ -97,12 +93,12 @@ class _MyHomePageState extends State<MyHomePage> {
             )),
     );
   }
-  
+
   Widget _buildRemainStatWidget(Store store) {
     var remainStat = '판매중지';
     var description = '판매중지';
     var color = Colors.black;
-    
+
     switch (store.remainStat) {
       case 'plenty':
         remainStat = '충분';
@@ -130,8 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
       children: [
         Text(remainStat,
             style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-        Text(description,
-            style: TextStyle(color: color)),
+        Text(description, style: TextStyle(color: color)),
       ],
     );
   }
