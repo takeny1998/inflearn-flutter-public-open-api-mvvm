@@ -5,6 +5,7 @@ import 'package:public_open_api_mvvm/viewmodel/store_model.dart';
 
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(ChangeNotifierProvider.value(
     value: StoreModel(),
     child: const MyApp(),

@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:public_open_api_mvvm/model/store.dart';
 
 class StoreRepository {
-  Future<List<Store>> fetch() async {
+  Future<List<Store>> fetch(double lat, double lng) async {
     final List<Store> stores = [];
 
     var url =
